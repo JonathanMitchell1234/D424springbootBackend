@@ -1,5 +1,7 @@
 package com.example.demo.dto;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public class JournalEntryDTO {
@@ -7,9 +9,11 @@ public class JournalEntryDTO {
     private Long id;
     private String title;
     private String content;
+//    private List<String> mood;
+    private Set<String> mood;
     private String aiResponse;
     private String imageUri;
-    private Set<String> mood;
+    private Set<Integer> selectedMoods;
     private LocalDateTime dateCreated;
     private LocalDateTime dateUpdated;
 
@@ -29,6 +33,12 @@ public class JournalEntryDTO {
 
     public String getImageUri() { return imageUri; }
     public void setImageUri(String imageUri) { this.imageUri = imageUri; }
+
+//    public Set<String> getMood() { return mood; }
+//    public void setMood(Set<String> mood) { this.mood = mood; }
+
+//    public Set<Integer> getSelectedMoods() { return selectedMoods; }
+//    public void setSelectedMoods(Set<Integer> selectedMoods) { this.selectedMoods = selectedMoods; }
 
     public Set<String> getMood() { return mood; }
     public void setMood(Set<String> mood) { this.mood = mood; }

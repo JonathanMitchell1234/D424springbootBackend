@@ -5,21 +5,23 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.Set;
+import com.example.demo.entity.BaseEntity;
 
 @Entity
-@Table(name = "Mood")
+@Table(name = "mood")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Mood extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     private String name;
 
     @ManyToMany(mappedBy = "selectedMoods")
-    @JsonIgnore // Prevent serialization to avoid recursion
+    @JsonIgnore
     private Set<JournalEntry> journalEntries;
 
     public Mood(String name) {
@@ -27,4 +29,8 @@ public class Mood extends BaseEntity {
     }
 
     public Mood() {}
+
+    public String getName() {
+        return this.name;
+    }
 }

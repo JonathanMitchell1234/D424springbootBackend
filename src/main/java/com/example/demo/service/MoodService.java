@@ -22,8 +22,8 @@ public class MoodService {
         return moodRepository.findByName(name);
     }
 
-    // Fetch Mood by ID (if needed)
-    public Optional<Mood> findById(int id) {
+    // Fetch Mood by ID
+    public Optional<Mood> findById(Long id) { // Changed to Long
         return moodRepository.findById(id);
     }
 

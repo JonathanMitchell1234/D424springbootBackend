@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 @Setter
 public abstract class BaseEntity {
 
-    @Column(updatable = false)
+    @Column(name = "date_created", updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dateCreated;
 
-    @Column
+    @Column(name = "date_updated")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dateUpdated;
 

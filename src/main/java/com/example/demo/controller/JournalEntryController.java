@@ -7,10 +7,13 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.service.JournalEntryService;
 import com.example.demo.service.MoodService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.Set;
 @RequestMapping("/api/journal-entries")
 public class JournalEntryController {
 
+    private static final Logger logger = LoggerFactory.getLogger(JournalEntryController.class);
     private final JournalEntryService journalEntryService;
     private final MoodService moodService;
 
@@ -65,9 +69,27 @@ public class JournalEntryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEntry(@PathVariable Long id, Authentication authentication) {
+        logger.info("Delete request received for entry ID: {}", id);
+        if (id == null) {
+            logger.warn("Received null ID for deletion");
+            return ResponseEntity.badRequest().body("Invalid ID");
+        }
         String email = authentication.getName();
-        journalEntryService.deleteJournalEntry(id, email);
-        return ResponseEntity.ok("Entry deleted successfully");
+        logger.info("Authenticated user email: {}", email);
+        try {
+            journalEntryService.deleteJournalEntry(id, email);
+            logger.info("Entry {} deleted successfully", id);
+            return ResponseEntity.ok("Entry deleted successfully");
+        } catch (ResourceNotFoundException e) {
+            logger.warn("Entry not found: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            logger.warn("Unauthorized deletion attempt: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error during deletion", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
     }
 
     @GetMapping("/search")
@@ -78,6 +100,9 @@ public class JournalEntryController {
         List<JournalEntry> entries = journalEntryService.searchEntries(query, email);
         return ResponseEntity.ok(entries);
     }
+
+    // In JournalEntryController.java
+// JournalEntryController.java
 
     private JournalEntry convertToEntity(JournalEntryDTO entryDTO) {
         JournalEntry entry = new JournalEntry();
@@ -98,4 +123,5 @@ public class JournalEntryController {
         entry.setSelectedMoods(moods);
         return entry;
     }
+
 }

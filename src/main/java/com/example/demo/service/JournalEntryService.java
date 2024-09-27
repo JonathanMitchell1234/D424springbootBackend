@@ -6,8 +6,12 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.JournalEntryRepository;
 import com.example.demo.repository.MoodRepository;
 import com.example.demo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +19,8 @@ import java.util.Set;
 
 @Service
 public class JournalEntryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(JournalEntryService.class);
 
     @Autowired
     private JournalEntryRepository journalEntryRepository;
@@ -73,14 +79,26 @@ public class JournalEntryService {
     }
 
     public void deleteJournalEntry(Long id, String email) {
+        logger.info("Attempting to delete entry {} for user {}", id, email);
         JournalEntry existingEntry = journalEntryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Journal Entry not found"));
+                .orElseThrow(() -> {
+                    logger.warn("Journal Entry not found: {}", id);
+                    return new ResourceNotFoundException("Journal Entry not found");
+                });
 
-        if (!existingEntry.getUser().getEmail().equals(email)) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    logger.warn("User not found: {}", email);
+                    return new ResourceNotFoundException("User not found");
+                });
+
+        if (!existingEntry.getUser().equals(user)) {
+            logger.warn("Unauthorized deletion attempt: User {} attempting to delete entry {}", email, id);
             throw new SecurityException("Unauthorized access");
         }
 
         journalEntryRepository.delete(existingEntry);
+        logger.info("Entry {} deleted successfully", id);
     }
 
     // Search functionality

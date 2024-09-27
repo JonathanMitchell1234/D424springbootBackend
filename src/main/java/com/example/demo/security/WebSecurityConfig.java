@@ -22,17 +22,13 @@ public class WebSecurityConfig {
     private JwtFilter jwtFilter;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors
                         .configurationSource(request -> {
                             CorsConfiguration config = new CorsConfiguration();
-                            config.setAllowedOrigins(List.of("http://localhost:19006", "http://your-react-native-ip"));
+                            // Allow requests with no Origin header
+                            config.setAllowedOriginPatterns(List.of("*"));
                             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                             config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
                             config.setAllowCredentials(true);
@@ -41,7 +37,7 @@ public class WebSecurityConfig {
                 )
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(authz -> authz
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/test/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
